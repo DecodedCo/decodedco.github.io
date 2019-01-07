@@ -19,13 +19,12 @@
       background: #000;
       width: 100%;
       margin: 0;
-      font-weight: bold;
       color: #ffffff;
       position: fixed;
       overflow: hidden;
       font-family: 'work sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 300;
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -62,8 +61,7 @@
       padding: 2rem 3rem;
       margin-top: -50px;
       max-width: 500px;
-      font-size: 3rem;
-      text-shadow: 1px 1px 3px #333;
+      font-size: 2.2rem;
     }
 
     .welcome-message img {
@@ -87,12 +85,12 @@
 
     .decoded {
       font-family: barlow condensed, sans-serif;
+      text-transform: uppercase;
       color: white;
       position: absolute;
       top: 10px;
       left: 10px;
       font-size: 40px;
-      text-transform: uppercase;
       font-weight: 600;
       z-index: 100;
     }
@@ -108,6 +106,7 @@
       top: 10px;
       right: 10px;
       z-index: 100;
+      font-weight: 400;
     }
 
     .source a {
@@ -115,7 +114,12 @@
       text-decoration: none;
     }
 
-    #swiping{
+    #swiping img {
+      width: 30px;
+      height: auto;
+    }
+
+    #swiping {
       -webkit-animation:linear infinite alternate;
       -webkit-animation-name: run;
       -webkit-animation-duration: 0.7s;
@@ -123,9 +127,13 @@
 
     .cta-wrapper {
       margin-top: 5rem;
+      font-size: 1.7rem;
     }
 
     .cta {
+      font-family: barlow condensed, sans-serif;
+      text-transform: uppercase;
+      font-weight: 400;
       max-width: 200px;
       margin: 0 auto;
       border: 2px yellow solid;
@@ -145,6 +153,19 @@
         100%{ transform: translateX(10%)}
     }
 
+    .skyline {
+      opacity: 0.2;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+    }
+
+    .skyline img {
+      max-width: 720px;
+      width: 100%;
+    }
+
     @media (max-width: 600px) {
       .welcome-message, .final-message {
         padding: 1rem 2rem;
@@ -152,7 +173,8 @@
       }
 
       .cta-wrapper {
-        margin-top: 2rem;
+        margin-top: 5rem;
+        font-size: 1.2rem;
       }
     }
 
@@ -168,13 +190,13 @@
       <p>
       <p>
         <div class="cta-wrapper">
-          <span class="cta restart">restart!</span>
+          <span class="cta restart">restart</span>
         </div>
       </p>
     </div>
     <div class="welcome-message active">
-      <p>A web experiment by Decoded</p>
-      <p>Swipe or move mouse to interact</p>
+      <p>A web experiment by Decoded.</p>
+      <p>Swipe or move mouse to interact.</p>
       <div id="swiping"><img src="./assets/icon-swipe.png"></div>
       <p>
         <div class="cta-wrapper">
@@ -184,13 +206,17 @@
     </div>
   </div>
   <div class="decoded">
-    <a target="_blank" href="https://decoded.com">Decoded</a>
+    <a target="_blank" href="https://decoded.com"><img src="./assets/decoded_type_navbar.png"></a>
   </div>
   <div class="source">
     <a target="_blank" href="https://github.com/DecodedCo/decodedco.github.io/tree/master/holiday">source</a>
   </div>
+  <div class="skyline">
+    <img src="./assets/skyline.png">
+  </div>
 <script>
   var ARTSY = false;
+  var SKYLINE = false;
   var INACTIVE_LIMIT = 500;
   var ADD_PARTICLES = true;
   var MAX_HEIGHT = 800;
@@ -213,7 +239,7 @@
   var wind = 0;
   var moved = false;
 
-  var img, skyline, mobile, skylineMobile, reindeer;
+  var img, skyline, mobile, skylineMobile, reindeer, skylineFilled;
 
   var completed = false;
   var started = false;
@@ -281,6 +307,7 @@
     skyline = loadImage('./assets/skyline_outline.png');
     skylineMobile = loadImage('./assets/skyline_outline_mobile.png');
     reindeer = loadImage('./assets/reindeer.png');
+    skylineFilled = loadImage('./assets/skyline.png');
   }
 
   function setPixelWidth() {
@@ -336,6 +363,7 @@
   }
 
   var wandRotation = 0;
+  var lastRotation = 0;
   var inactiveCount = 0;
   var startTime = 0;
 
@@ -354,15 +382,17 @@
 
   function drawWand(speed) {
     push();
-    fill(255,255, 0, 137);
     translate(mouseX, mouseY);
     var a = pmouseX - mouseX;
     var b = pmouseY - mouseY;
     var distance = sqrt((a*a) + b*b);
-    wandRotation += map(distance, 0, 200, 0.03, 0.4*TWO_PI);
+    var thisRotation = lerp(map(distance, 0, 200, 0.03, 0.4*TWO_PI), lastRotation, 0.95);
+    wandRotation += thisRotation;
+    lastRotation = thisRotation;
     rotate(wandRotation);
+    fill(255,255, 0, 255);
     star(0, 0, brushWidth*0.5, brushWidth, 5);
-    star(0, 0, brushWidth*0.25, brushWidth, 0.5);
+    fill(255,255, 0, 137);
     ellipse(0, 0, brushWidth*2);
     pop();
   }
@@ -446,9 +476,11 @@
       particle.display();
     });
 
-    skylineParticles.forEach(function(particle) {
-      particle.display();
-    });
+    if (SKYLINE) {
+      skylineParticles.forEach(function(particle) {
+        particle.display();
+      });
+    }
     if(started && !completed) {
       drawWand();
       checkInactive();
@@ -471,15 +503,18 @@
   function Reindeer() {
     this.reset = function() {
       this.x = -reindeer.width;
-      this.y = height/4;
+      this.y = height/3;
       this.active = false;
     }
     this.x = -reindeer.width;
-    this.y = height/4;
+    this.y = height/3;
     this.active = false;
     this.rotation = PI;
     this.display = function() {
       var offSet = pixelWidth*1.5;
+      if (MOBILE) {
+        offSet = pixelWidth*0.8;
+      }
       if (this.active) {
         this.x += offSet;
         this.y -= offSet/3;
@@ -509,7 +544,9 @@
       }
     }
     deer.reset();
-    generateSkyline();
+    if (SKYLINE) {
+      generateSkyline();
+    }
     moved = false;
   }
 
@@ -588,10 +625,18 @@
         this.fallTime += 1;
         if (this.y * pixelWidth > height) {
           this.toRemove = true;
-        } else if (!checkSkylineIntersect(this.x, this.y)) {
+        } else if (SKYLINE) {
+          if (!checkSkylineIntersect(this.x, this.y)) {
           var angle = (frameCount/20) + this.initialAngle;
           this.x = this.x + ((sin(angle) / this.radius) - wind*this.windFactor);
           this.y = this.y + (this.fallSpeed) + random(0,0.2);
+          }
+        } else if (!SKYLINE) {
+          if (!this.y * this.pixelWidth < height) {
+            var angle = (frameCount/20) + this.initialAngle;
+            this.x = this.x + ((sin(angle) / this.radius) - wind*this.windFactor);
+            this.y = this.y + (this.fallSpeed) + random(0,0.2);
+          }
         } else {
           this.active = false;
         }
