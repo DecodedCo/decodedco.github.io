@@ -8,7 +8,7 @@ var MOBILE = false;
 var DEBUG = false;
 var START_TIME_LIMIT = 3 * 60;
 
-var mainWidth = 500;
+var mainWidth = 400;
 var mainHeight = window.innerHeight > MAX_HEIGHT ? MAX_HEIGHT : window.innerHeight;
 var mobileWidth = window.innerWidth > 375 ? 357 : window.innerWidth;
 var mobileHeight = window.innerHeight > MAX_HEIGHT ? MAX_HEIGHT : window.innerHeight;
@@ -82,7 +82,7 @@ function addParticles(skips) {
 }
 
 function getFontSize(skips) {
-  return 12 + ((skips - 2) * 5);
+  return 10 + ((skips - 2) * 5);
 }
 
 function preload() {
