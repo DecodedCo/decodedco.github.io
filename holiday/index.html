@@ -10,7 +10,7 @@
   <meta property="og:type" content="website">
   <meta property="og:description" content="A holiday web experiment by Decoded.">
   <meta property="og:locale" content="en_us">
-  <meta property="og:image" content="https://decoded.com/static/img/og-image.png">
+  <meta property="og:image" content="https://decoded.com/static/logo/og-image.png">
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-25454233-43"></script>
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
   <script src="./scripts/p5.min.js"></script>
@@ -31,7 +31,8 @@
       position: fixed;
       overflow: hidden;
       font-family: 'work sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-size: 14px;
+      font-size: 18px;
+      line-height: 1.5rem;
       font-weight: 300;
       overscroll-behavior: none none;
     }
@@ -65,8 +66,9 @@
       display: none;
       padding: 2rem 3rem;
       margin: 25vh auto 0;
-      max-width: 500px;
-      font-size: 2.2rem;
+      max-width: 600px;
+      font-size: 2rem;
+      line-height: 3rem;
     }
 
     .welcome-message img {
@@ -89,14 +91,9 @@
     }
 
     .decoded {
-      font-family: barlow condensed, sans-serif;
-      text-transform: uppercase;
-      color: white;
       position: absolute;
-      top: 10px;
+      top: 1.5rem;
       left: 10px;
-      font-size: 40px;
-      font-weight: 600;
       z-index: 100;
     }
 
@@ -106,9 +103,8 @@
     }
 
     .source {
-      line-height: 2.7rem;
       position: absolute;
-      top: 10px;
+      top: 1.5rem;
       right: 10px;
       z-index: 100;
       font-weight: 400;
@@ -127,7 +123,7 @@
     #swiping {
       -webkit-animation:linear infinite alternate;
       -webkit-animation-name: run;
-      -webkit-animation-duration: 0.7s;
+      -webkit-animation-duration: 0.5s;
     }
 
     .cta-wrapper {
@@ -153,21 +149,28 @@
       color: black;
     }
     @-webkit-keyframes run {
-        0% { transform: translateX(-10%)}
+        0% { transform: translateX(-5%)}
         50%{ transform: translateX(0)}
-        100%{ transform: translateX(10%)}
+        100%{ transform: translateX(5%)}
     }
 
     .skyline {
-      opacity: 0.2;
+      opacity: 0;
       position: absolute;
       bottom: 0;
       width: 100%;
       text-align: center;
+      transition: opacity 5s;
+      -webkit-transition: opacity 5s;
+    }
+
+    .skyline.active {
+      opacity: 1.0;
     }
 
     .skyline img {
       max-width: 720px;
+      min-width: 500px;
       width: 100%;
     }
 
@@ -175,11 +178,12 @@
       .welcome-message, .final-message {
         padding: 1rem 2rem;
         font-size: 1.5rem;
+        line-height: 2.25rem;
       }
 
       .cta-wrapper {
         margin-top: 5rem;
-        font-size: 1.2rem;
+        font-size: 1rem;
       }
     }
   </style>
@@ -201,7 +205,7 @@
     <div class="welcome-message active">
       <p>A web experiment by Decoded.</p>
       <p>Swipe or move mouse to interact.</p>
-      <div id="swiping"><img src="./assets/icon-swipe.png"></div>
+      <!-- <div id="swiping"><img src="./assets/icon-swipe.png"></div> -->
       <p>
         <div class="cta-wrapper">
           <span class="cta">continue</span>
@@ -222,16 +226,16 @@
   var ARTSY = false;
   var SKYLINE = false;
   var INACTIVE_LIMIT = 500;
+  var INACTIVE_TIME = 60;
   var ADD_PARTICLES = true;
   var MAX_HEIGHT = 800;
   var MOBILE = false;
   var DEBUG = false;
   var START_TIME_LIMIT = 3 * 60;
-  var INACTIVE_TIME = 30;
 
   var mainWidth = 500;
   var mainHeight = window.innerHeight > MAX_HEIGHT ? MAX_HEIGHT : window.innerHeight;
-  var mobileWidth = 375;
+  var mobileWidth = window.innerWidth > 375 ? 357 : window.innerWidth;
   var mobileHeight = window.innerHeight > MAX_HEIGHT ? MAX_HEIGHT : window.innerHeight;
   var mainOffsetX = 0;
   var mainOffsetY = 50;
@@ -243,7 +247,7 @@
   var wind = 0;
   var moved = false;
 
-  var img, skyline, mobile, skylineMobile, reindeer, skylineFilled;
+  var logo, skyline, mobile, skylineMobile, reindeer;
 
   var completed = false;
   var started = false;
@@ -286,13 +290,13 @@
   }
 
   function addParticles(skips) {
-    for (var i = 0; i < (img.width) * (img.height); i++) {
-      var x = i % img.width;
-      var y = Math.floor(i / img.height);
+    for (var i = 0; i < (logo.width) * (logo.height); i++) {
+      var x = i % logo.width;
+      var y = Math.floor(i / logo.height);
       if (i % skips !== 1 || y % skips !== 1) {
         continue;
       }
-      var color = img.get(x, y);
+      var color = logo.get(x, y);
       if (color[0] > 240
         && (color[1] > 240)
         && color[2] === 0) {
@@ -308,7 +312,7 @@
 
   function preload() {
     mobile = loadImage('./assets/decoded_mobile.png');
-    img = loadImage('./assets/logo-new.png');
+    logo = loadImage('./assets/logo-new.png');
     skyline = loadImage('./assets/skyline_outline.png');
     skylineMobile = loadImage('./assets/skyline_outline_mobile.png');
     reindeer = loadImage('./assets/reindeer.png');
@@ -321,7 +325,7 @@
       pixelWidth = (mobileWidth / mobile.width);
       mainOffsetX = (window.innerWidth - mobileWidth);
     } else {
-      pixelWidth = (mainWidth / img.width);
+      pixelWidth = (mainWidth / logo.width);
       mainOffsetX = (window.innerWidth - mainWidth);
     }
   }
@@ -426,6 +430,10 @@
     if (!ARTSY) {
       background(0)
     }
+    if(started && !completed) {
+      drawWand();
+      checkInactive();
+    }
     wind = sin(frameCount / 80) / 2;
     if (frameCount % 6 === 0) {
       if (DEBUG) {
@@ -492,10 +500,6 @@
         particle.display();
       });
     }
-    if(started && !completed) {
-      drawWand();
-      checkInactive();
-    }
     deer.display();
   }
 
@@ -534,7 +538,7 @@
         this.rotation = sin(frameCount/3)*0.1;
         rotate(this.rotation);
         fill(255, 0, 0);
-        image(reindeer, 0, 0, reindeer.width, reindeer.height);
+        image(reindeer, 0, 0, reindeer.width*0.8, reindeer.height*0.8);
         pop();
       }
     }
@@ -545,14 +549,13 @@
   }
 
   function initialize() {
-    if (skips > 0) {
-      if (MOBILE) {
-        img = mobile;
-        skyline = skylineMobile;
-        addParticles(3);
-      } else {
-        addParticles(2);
-      }
+    $('.skyline').addClass('active');
+    if (MOBILE) {
+      logo = mobile;
+      skyline = skylineMobile;
+      addParticles(3);
+    } else {
+      addParticles(2);
     }
     deer.reset();
     if (SKYLINE) {
