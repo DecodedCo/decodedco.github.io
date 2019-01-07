@@ -32,22 +32,31 @@ canvas {
 
 .message-wrapper {
   z-index: 10;
-  position: absolute;
+  position: fixed;
   height: 100%;
   width: 100%;
   text-align: center;
 }
 
 .welcome-message, .final-message {
-  display: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
   opacity: 0;
-  padding: 2rem 3rem;
-  margin: 25vh auto 0;
   max-width: 600px;
   font-size: 2rem;
   line-height: 3rem;
-  transition: opacity 5s;
-  -webkit-transition: opacity 5s;
+  transition: opacity 3s;
+  -webkit-transition: opacity 3s;
+}
+
+.message-content {
+  padding: 2rem 3rem;
 }
 
 .welcome-message img {
@@ -56,8 +65,8 @@ canvas {
 }
 
 .welcome-message.active, .final-message.active {
-  display: block;
   opacity: 1;
+  z-index: 100;
 }
 
 .restart {
@@ -150,9 +159,12 @@ canvas {
 
 @media (max-width: 600px) {
   .welcome-message, .final-message {
-    padding: 1rem 2rem;
     font-size: 1.5rem;
     line-height: 2.25rem;
+  }
+
+  .message-content {
+    padding: 1rem 2rem;
   }
 
   .cta-wrapper {
