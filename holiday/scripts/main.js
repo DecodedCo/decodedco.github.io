@@ -106,6 +106,7 @@ function setPixelWidth() {
 }
 
 function setup() {
+  console.log('%c Happy Holidays 🙃 ', 'background: #000; color: #FEF700; font-size: 20px');
   $('.welcome-message').addClass('active');
   if (window.innerWidth < 600) {
     MOBILE = true;
