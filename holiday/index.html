@@ -1,1 +1,588 @@
-Hello World
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Decoded | Holiday 2018</title>
+  <meta name="description" content="A holiday web experiment by Decoded.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/gif" href="./assets/favicon.png">
+  <meta name="theme-color" content="#fef800">
+  <meta property="og:title" content="Decoded | Holiday 2018">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="A holiday web experiment by Decoded.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:image" content="https://decoded.com/static/img/og-image.png">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+  <script src="./scripts/p5.min.js"></script>
+  <script src="./scripts/jquery-3.3.1.min.js"></script>
+  <style>
+    body, html {
+      background: #000;
+      width: 100%;
+      margin: 0;
+      font-weight: bold;
+      color: #ffffff;
+      position: fixed;
+      overflow: hidden;
+      font-family: 'work sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: barlow condensed, sans-serif;
+    }
+
+    canvas {
+      z-index: 0;
+      padding: 0;
+      margin: auto;
+      display: block;
+    }
+
+    .fps {
+      position: fixed;
+      top: 0;
+      right: 0;
+    }
+
+    .message-wrapper {
+      z-index: 10;
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .welcome-message, .final-message {
+      position: absolute;
+      display: none;
+      padding: 1.5rem 1rem;
+      margin-top: -50px;
+      max-width: 500px;
+      font-size: 3rem;
+      text-shadow: 1px 1px 3px #333;
+      background-color: rgba(255,255,255,0.1);
+      border-radius: 2rem;
+    }
+
+    .welcome-message img {
+      width: 40px;
+      height: auto;
+    }
+
+    .welcome-message.active {
+      display: initial;
+      display: block!important;
+    }
+
+    .final-message.active {
+      display: initial;
+      display: block!important;
+    }
+
+    .restart {
+      cursor: pointer;
+    }
+
+    .decoded {
+      font-family: barlow condensed, sans-serif;
+      color: white;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 40px;
+      text-transform: uppercase;
+      font-weight: 600;
+      z-index: 100;
+    }
+
+    .decoded a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .source {
+      line-height: 2.7rem;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 100;
+    }
+
+    .source a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    #swiping{
+      -webkit-animation:linear infinite alternate;
+      -webkit-animation-name: run;
+      -webkit-animation-duration: 0.7s;
+    }
+
+    .cta {
+      max-width: 200px;
+      margin: 0 auto;
+      margin-top: 5rem;
+      border: 2px yellow solid;
+      border-radius: 0.5rem;
+      padding: 0.5rem 2rem;
+      background-color: rgba(0,0,0,0);
+      cursor: pointer;
+    }
+
+    .cta:hover {
+      background-color: yellow;
+      color: black;
+    }
+    @-webkit-keyframes run {
+        0% { transform: translateX(-10%)}
+        50%{ transform: translateX(0)}
+        100%{ transform: translateX(10%)}
+    }
+
+    @font-face {
+      font-family: BarlowCondensed-Regular;
+      src: url("./assets/BarlowCondensed-Regular.otf") format("opentype");
+    }
+  </style>
+</head>
+<body>
+  <div class="fps"></div>
+  <div class="message-wrapper">
+    <div class="final-message">
+      <p>Happy Holidays from Decoded!</p>
+      <p>
+      May your <i>data</i> be merry and right.
+      <br>
+      <p>
+        <span class="cta restart">restart!</span>
+      </p>
+    </div>
+    <div class="welcome-message active">
+      <p>A web experiment by Decoded</p>
+      <p>Swipe or move mouse to interact</p>
+      <div id="swiping"><img src="./assets/icon-swipe.png"></div>
+      <p class="cta">continue</p>
+    </div>
+  </div>
+  <div class="decoded">
+    <a target="_blank" href="https://decoded.com">Decoded</a>
+  </div>
+  <div class="source">
+    <a target="_blank" href="https://github.com/DecodedCo/decodedco.github.io/tree/master/holiday">source</a>
+  </div>
+<script>
+  var INACTIVE_LIMIT = 500;
+  var ADD_PARTICLES = true;
+  var MAX_HEIGHT = 800;
+  var MOBILE = false;
+  var DEBUG = false;
+  var START_TIME_LIMIT = 3 * 60;
+  var INACTIVE_TIME = 30;
+
+  var mainWidth = 500;
+  var mainHeight = window.innerHeight > MAX_HEIGHT ? MAX_HEIGHT : window.innerHeight;
+  var mobileWidth = 375;
+  var mobileHeight = window.innerHeight > MAX_HEIGHT ? MAX_HEIGHT : window.innerHeight;
+  var mainOffset = 0;
+  var skylineOffset = 0;
+  var brushWidth = 50;
+  var skips = 2;
+  var pixelWidth = 5;
+
+  var wind = 0;
+  var moved = false;
+
+  var img, skyline, mobile, skylineMobile, reindeer;
+
+  var completed = false;
+  var started = false;
+  var rendered = false;
+
+  var deer;
+  var particles = [];
+  var falling = [];
+  var inactive = [];
+  var skylineParticles = [];
+
+  function generateSkyline() {
+    for (var i = 0; i < skyline.width; i++) {
+      for (var j = 0; j < skyline.height; j++) {
+        var color = skyline.get(i, j);
+        if (color[0] !== 255
+          && (color[1] !== 255)
+          && color[2] !== 255) {
+          skylineParticles.push(new SkylineParticle(i, j, skyline.height));
+        }
+      }
+    }
+  }
+
+  function generateLetter() {
+    var rand = random(0,1)
+    if (rand < 0.5) {
+      return '0'
+    } else {
+      return '1'
+    }
+  }
+
+  function addSnowParticle() {
+    var particle = new Particle(Math.floor(random(-width/8, width*1.125)), 1, getFontSize(skips));
+    particle.touched = true;
+    particle.drawCountdown = 0;
+    falling.push(particle);
+  }
+
+  function addParticles(skips) {
+    for (var i = 0; i < (img.width) * (img.height); i++) {
+      var x = i % img.width;
+      var y = Math.floor(i / img.height);
+      if (i % skips !== 1 || y % skips !== 1) {
+        continue;
+      }
+      var color = img.get(x, y);
+      if (color[0] > 240
+        && (color[1] > 240)
+        && color[2] === 0) {
+        var particle = new Particle(x, y, getFontSize(skips));
+        particles.push(particle);
+      }
+    }
+  }
+
+  function getFontSize(skips) {
+    return 12 + ((skips - 2) * 5);
+  }
+
+  function preload() {
+    mobile = loadImage('./assets/decoded_mobile.png');
+    img = loadImage('./assets/logo-new.png');
+    skyline = loadImage('./assets/skyline_outline.png');
+    skylineMobile = loadImage('./assets/skyline_outline_mobile.png');
+    reindeer = loadImage('./assets/reindeer.png');
+  }
+
+  function setPixelWidth() {
+    if (MOBILE) {
+      pixelWidth = (mobileWidth / mobile.width);
+      mainOffset = (window.innerWidth - mobileWidth);
+    } else {
+      pixelWidth = (mainWidth / img.width);
+      mainOffset = (window.innerWidth - mainWidth);
+    }
+  }
+
+  function setup() {
+    if (window.innerWidth < 600) {
+      MOBILE = true;
+    }
+    createCanvas(window.innerWidth, window.innerHeight);
+    noStroke();
+    deer = new Reindeer();
+    setPixelWidth();
+    textSize(13);
+    textStyle(BOLD);
+    textAlign(CENTER, CENTER);
+  }
+
+  function drawSnowGlobe() {
+    fill(0);
+    beginShape();
+    vertex(0, 0);
+    vertex(0, width/2);
+    bezierVertex(0, width/2 * (.45), width/2 * (.45), 0, width/2, 0);
+    endShape();
+    beginShape();
+    vertex(width, 0);
+    vertex(width, width/2);
+    bezierVertex(width, width/2 * (.45), width/2 + width/2 * (.45), 0, width/2, 0);
+    endShape();
+  }
+
+  function star(x, y, radius1, radius2, npoints) {
+    var angle = TWO_PI / npoints;
+    var halfAngle = angle/2.0;
+    beginShape();
+    for (var a = 0; a < TWO_PI; a += angle) {
+      var sx = x + cos(a) * radius2;
+      var sy = y + sin(a) * radius2;
+      vertex(sx, sy);
+      sx = x + cos(a+halfAngle) * radius1;
+      sy = y + sin(a+halfAngle) * radius1;
+      vertex(sx, sy);
+    }
+    endShape(CLOSE);
+  }
+
+  var wandRotation = 0;
+  var inactiveCount = 0;
+  var startTime = 0;
+
+  function checkInactive() {
+    startTime += 1;
+    if (pmouseX !== mouseX || pmouseY !== mouseY) {
+      inactiveCount = 0;
+      return;
+    } else {
+      inactiveCount += 1;
+    }
+    if (inactiveCount > INACTIVE_TIME && startTime > START_TIME_LIMIT) {
+      deer.active = true;
+    }
+  }
+
+  function drawWand(speed) {
+    push();
+    fill(255,255, 0, 137);
+    translate(mouseX, mouseY);
+    var a = pmouseX - mouseX;
+    var b = pmouseY - mouseY;
+    var distance = sqrt((a*a) + b*b);
+    wandRotation += map(distance, 0, 200, 0.03, 0.4*TWO_PI);
+    rotate(wandRotation);
+    star(0, 0, brushWidth*0.5, brushWidth, 5);
+    star(0, 0, brushWidth*0.25, brushWidth, 0.5);
+    ellipse(0, 0, brushWidth*2);
+    pop();
+  }
+
+  function restart() {
+    $('.final-message').removeClass('active');
+    completed = false;
+    startTime = 0;
+    initialize();
+  }
+
+  function draw() {
+    if (started) {
+      if (!rendered) {
+        rendered = true;
+        initialize();
+      }
+    }
+    if (started && checkComplete()) {
+      if (!completed) {
+        $('.final-message').addClass('active');
+        completed = true;
+      }
+    }
+    background(0);
+    wind = sin(frameCount / 80) / 2;
+    if (frameCount % 6 === 0) {
+      if (DEBUG) {
+        $('.fps').html(frameRate().toFixed(2) + '<br>' + falling.length);
+      }
+      if (ADD_PARTICLES) {
+        addSnowParticle();
+        addSnowParticle();
+      }
+    }
+    for(var i = particles.length - 1; i >= 0; i--) {
+      var particle = particles[i];
+      if (mouseX !== pmouseX || mouseY !== pmouseY) {
+        moved = true;
+      }
+      var a = particle.y * pixelWidth - mouseY;
+      var b = particle.x * pixelWidth - (mouseX - mainOffset/2);
+
+      if (moved && sqrt((a*a) + b*b) < brushWidth) {
+        if (particle.drawCountdown < 2) {
+          falling.push(particle);
+          particle.touched = true;
+          particles.splice(i, 1);
+        }
+      }
+      if (deer.active) {
+        if (abs((deer.x - mainOffset/2) - particle.x * pixelWidth) < pixelWidth*2.5) {
+          falling.push(particle);
+          particle.touched = true;
+          particles.splice(i, 1);
+        }
+      }
+      particle.update();
+      particle.display();
+    }
+
+    for(var i=falling.length-1; i>=0; i--) {
+      var fallingParticle = falling[i];
+      if (fallingParticle.toRemove) {
+        falling.splice(i, 1);
+      }
+      if (!fallingParticle.active) {
+        if (inactive.length > INACTIVE_LIMIT) {
+          inactive.shift();
+        }
+        inactive.push(fallingParticle);
+        falling.splice(i, 1);
+      }
+      fallingParticle.update();
+      fallingParticle.display();
+    };
+
+    inactive.forEach(function(particle) {
+      particle.display();
+    });
+
+    skylineParticles.forEach(function(particle) {
+      particle.display();
+    });
+    if(started && !completed) {
+      drawWand();
+      checkInactive();
+      deer.display();
+    }
+  }
+
+  function Reindeer() {
+    this.reset = function() {
+      this.x = -reindeer.width;
+      this.y = height/4;
+      this.active = false;
+    }
+    this.x = -reindeer.width;
+    this.y = height/4;
+    this.active = false;
+    this.rotation = PI;
+    this.display = function() {
+      var offSet = pixelWidth*1.5;
+      if (this.active) {
+        this.x += offSet;
+        this.y -= offSet/3;
+        push();
+        translate(this.x, this.y);
+        this.rotation = sin(frameCount/3)*0.1;
+        rotate(this.rotation);
+        fill(255, 0, 0);
+        image(reindeer, 0, 0, reindeer.width, reindeer.height);
+        pop();
+      }
+    }
+  }
+
+  function checkComplete() {
+    return particles.length === 0;
+  }
+
+  function initialize() {
+    if (skips > 0) {
+      if (MOBILE) {
+        img = mobile;
+        skyline = skylineMobile;
+        addParticles(3);
+      } else {
+        addParticles(2);
+      }
+    }
+    deer.reset();
+    generateSkyline();
+    moved = false;
+  }
+
+  function mouseClicked() {
+    started = true;
+    $('.welcome-message').removeClass('active');
+  }
+
+  function touchStarted() {
+    started = true;
+    $('.welcome-message').removeClass('active');
+  }
+
+  $('.restart').on('click', function() {
+    restart();
+  });
+
+  function calculateSkylineLocationY(particle) {
+    return (particle.y - particle.height)*particle.pixelWidth + height - skylineOffset;
+  }
+
+  function SkylineParticle(x, y, skylineHeight) {
+    this.x = x;
+    this.y = y;
+    this.letter = generateLetter()
+    this.touched = false;
+    this.height = skylineHeight;
+    this.pixelWidth = pixelWidth
+    this.display = function() {
+      if (this.touched) {
+        stroke(255);
+        noStroke();
+      }
+    }
+  }
+
+  function checkSkylineIntersect(x, y) {
+    if (skylineParticles.length === 0) {
+      return false;
+    }
+    if (y * pixelWidth < height - skyline.height * pixelWidth) {
+      return false;
+    }
+    for (var i=0; i<skylineParticles.length; i++) {
+      var particle = skylineParticles[i];
+      if (abs(particle.x - (mainOffset / 4 / pixelWidth) - x) < 1) {
+        if (y * pixelWidth > calculateSkylineLocationY(particle)) {
+          skylineParticles[i].touched = true;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function Particle(x, y, fontSize) {
+    this.x = x;
+    this.y = y;
+    this.touched = false;
+    this.toRemove = false;
+    this.active = true;
+    this.fontSize = fontSize;
+    this.randomSeed = floor(random(0, 200))
+    this.drawCountdown = ((x + (x * y)) / 100 )+ Math.floor(random(10,40));
+    this.pixelWidth = pixelWidth;
+    this.letter = generateLetter();
+    this.radius = random(2,3);
+    this.windFactor = random(0.2,0.7);
+    this.fallSpeed = random(0.15, 0.5);
+    this.initialAngle = random(0, 2 * PI);
+    this.update = function() {
+      if (this.drawCountdown > 0) {
+        this.drawCountdown -= 1;
+      }
+      if (this.touched) {
+        this.fallTime += 1;
+        if (this.y * pixelWidth > height) {
+          this.toRemove = true;
+        } else if (!checkSkylineIntersect(this.x, this.y)) {
+          var angle = (frameCount/20) + this.initialAngle;
+          this.x = this.x + ((sin(angle) / this.radius) - wind*this.windFactor);
+          this.y = this.y + (this.fallSpeed) + random(0,0.2);
+        } else {
+          this.active = false;
+        }
+      }
+    }
+    this.display = function() {
+      textSize(this.fontSize);
+      if (this.drawCountdown > 0) {
+        return;
+      }
+      if (this.touched) {
+        fill(255);
+      } else {
+        if ((this.randomSeed + frameCount) % 100 === 0) {
+          this.letter = generateLetter();
+        }
+        fill(255,255,0);
+      }
+      text(this.letter, mainOffset/2 + this.x*pixelWidth, this.y*pixelWidth);
+    }
+  }
+
+</script>
+</body>
