@@ -51,17 +51,12 @@
       height: 100%;
       width: 100%;
       text-align: center;
-      /*display: flex;
-      justify-content: center;
-      align-items: center;*/
     }
 
     .welcome-message, .final-message {
-      position: absolute;
       display: none;
       padding: 2rem 3rem;
-      margin-top: 30vh;
-      margin: 0 auto;
+      margin: 25vh auto 0;
       max-width: 500px;
       font-size: 2.2rem;
     }
@@ -232,7 +227,7 @@
   var mobileWidth = 375;
   var mobileHeight = window.innerHeight > MAX_HEIGHT ? MAX_HEIGHT : window.innerHeight;
   var mainOffsetX = 0;
-  var mainOffsetY = 60;
+  var mainOffsetY = 50;
   var skylineOffset = 0;
   var brushWidth = 50;
   var skips = 2;
@@ -279,6 +274,7 @@
     var particle = new Particle(Math.floor(random(-width/8, width*1.125)), 1, getFontSize(skips));
     particle.touched = true;
     particle.drawCountdown = 0;
+    particle.offSetY = 0;
     falling.push(particle);
   }
 
@@ -314,6 +310,7 @@
 
   function setPixelWidth() {
     if (MOBILE) {
+      brushWidth = brushWidth * 0.8;
       pixelWidth = (mobileWidth / mobile.width);
       mainOffsetX = (window.innerWidth - mobileWidth);
     } else {
@@ -428,8 +425,13 @@
         $('.fps').html(frameRate().toFixed(2) + '<br>' + falling.length);
       }
       if (ADD_PARTICLES) {
-
-        addSnowParticle();
+        var numberOfParticles = 5;
+        if (MOBILE) {
+          numberOfParticles = 2;
+        }
+        for (var i=0; i < numberOfParticles; i++) {
+          addSnowParticle();
+        }
       }
     }
     for(var i = particles.length - 1; i >= 0; i--) {
@@ -610,6 +612,8 @@
     this.touched = false;
     this.toRemove = false;
     this.active = true;
+    this.generated = false;
+    this.offSetY = mainOffsetY;
     this.fontSize = fontSize;
     this.randomSeed = floor(random(0, 200))
     this.drawCountdown = ((x + (x * y)) / 100 )+ Math.floor(random(10,40));
