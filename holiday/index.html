@@ -25,6 +25,7 @@
       font-family: 'work sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 14px;
       font-weight: 300;
+      overscroll-behavior: none none;
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -50,16 +51,17 @@
       height: 100%;
       width: 100%;
       text-align: center;
-      display: flex;
+      /*display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: center;*/
     }
 
     .welcome-message, .final-message {
       position: absolute;
       display: none;
       padding: 2rem 3rem;
-      margin-top: -50px;
+      margin-top: 30vh;
+      margin: 0 auto;
       max-width: 500px;
       font-size: 2.2rem;
     }
@@ -426,7 +428,7 @@
         $('.fps').html(frameRate().toFixed(2) + '<br>' + falling.length);
       }
       if (ADD_PARTICLES) {
-        addSnowParticle();
+
         addSnowParticle();
       }
     }
