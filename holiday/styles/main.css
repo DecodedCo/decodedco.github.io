@@ -1,0 +1,162 @@
+body, html {
+  background: #000;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: #ffffff;
+  position: fixed;
+  overflow: hidden;
+  font-family: 'work sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.5rem;
+  font-weight: 300;
+  overscroll-behavior: none none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: barlow condensed, sans-serif;
+}
+
+canvas {
+  z-index: 0;
+  padding: 0;
+  margin: auto;
+  display: block;
+}
+
+.fps {
+  position: fixed;
+  top: 0;
+  right: 0;
+}
+
+.message-wrapper {
+  z-index: 10;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+.welcome-message, .final-message {
+  display: none;
+  opacity: 0;
+  padding: 2rem 3rem;
+  margin: 25vh auto 0;
+  max-width: 600px;
+  font-size: 2rem;
+  line-height: 3rem;
+  transition: opacity 5s;
+  -webkit-transition: opacity 5s;
+}
+
+.welcome-message img {
+  width: 40px;
+  height: auto;
+}
+
+.welcome-message.active, .final-message.active {
+  display: block;
+  opacity: 1;
+}
+
+.restart {
+  cursor: pointer;
+}
+
+.decoded {
+  position: absolute;
+  top: 1.5rem;
+  left: 10px;
+  z-index: 100;
+}
+
+.decoded a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.source {
+  position: absolute;
+  top: 1.5rem;
+  right: 10px;
+  z-index: 100;
+  font-weight: 400;
+}
+
+.source a {
+  color: #fff;
+  text-decoration: none;
+}
+
+#swiping img {
+  width: 30px;
+  height: auto;
+}
+
+#swiping {
+  -webkit-animation:linear infinite alternate;
+  -webkit-animation-name: run;
+  -webkit-animation-duration: 0.5s;
+}
+
+.cta-wrapper {
+  margin-top: 5rem;
+  font-size: 1.7rem;
+}
+
+.cta {
+  font-family: barlow condensed, sans-serif;
+  text-transform: uppercase;
+  font-weight: 400;
+  max-width: 200px;
+  margin: 0 auto;
+  border: 2px yellow solid;
+  border-radius: 0.5rem;
+  padding: 0.5rem 2rem;
+  background-color: rgba(0,0,0,0);
+  cursor: pointer;
+}
+
+.cta:hover {
+  background-color: yellow;
+  color: black;
+}
+@-webkit-keyframes run {
+    0% { transform: translateX(-5%)}
+    50%{ transform: translateX(0)}
+    100%{ transform: translateX(5%)}
+}
+
+.skyline {
+  opacity: 0;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  transition: opacity 5s;
+  -webkit-transition: opacity 5s;
+}
+
+.skyline.active {
+  opacity: 1.0;
+}
+
+.skyline img {
+  max-width: 720px;
+  min-width: 500px;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .welcome-message, .final-message {
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    line-height: 2.25rem;
+  }
+
+  .cta-wrapper {
+    margin-top: 5rem;
+    font-size: 1rem;
+  }
+}
